@@ -12,6 +12,7 @@ import type { User } from '@server/entity/User';
 import { Watchlist } from '@server/entity/Watchlist';
 import type { DownloadingItem } from '@server/lib/downloadtracker';
 import downloadTracker from '@server/lib/downloadtracker';
+import type { NotFoundInfo } from '@server/lib/notfound';
 import { Permission } from '@server/lib/permissions';
 import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
@@ -223,6 +224,8 @@ class Media {
   public hasActiveRequest?: boolean;
   public downloadStatus?: DownloadingItem[] = [];
   public downloadStatus4k?: DownloadingItem[] = [];
+  public notFound?: NotFoundInfo;
+  public notFound4k?: NotFoundInfo;
 
   public mediaUrl?: string;
   public mediaUrl4k?: string;
@@ -385,6 +388,10 @@ class Media {
           this.serviceId,
           this.externalServiceId
         );
+        this.notFound = downloadTracker.getMovieNotFound(
+          this.serviceId,
+          this.externalServiceId
+        );
       }
 
       if (
@@ -394,6 +401,10 @@ class Media {
         this.serviceId4k !== null
       ) {
         this.downloadStatus4k = downloadTracker.getMovieProgress(
+          this.serviceId4k,
+          this.externalServiceId4k
+        );
+        this.notFound4k = downloadTracker.getMovieNotFound(
           this.serviceId4k,
           this.externalServiceId4k
         );
@@ -411,6 +422,10 @@ class Media {
           this.serviceId,
           this.externalServiceId
         );
+        this.notFound = downloadTracker.getSeriesNotFound(
+          this.serviceId,
+          this.externalServiceId
+        );
       }
 
       if (
@@ -420,6 +435,10 @@ class Media {
         this.serviceId4k !== null
       ) {
         this.downloadStatus4k = downloadTracker.getSeriesProgress(
+          this.serviceId4k,
+          this.externalServiceId4k
+        );
+        this.notFound4k = downloadTracker.getSeriesNotFound(
           this.serviceId4k,
           this.externalServiceId4k
         );

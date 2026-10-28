@@ -41,6 +41,7 @@ interface TitleCardProps {
   status?: MediaStatus;
   canExpand?: boolean;
   inProgress?: boolean;
+  notFound?: boolean;
   isAddedToWatchlist?: number | boolean;
   mutateParent?: () => void;
 }
@@ -65,6 +66,7 @@ const TitleCard = ({
   mediaType,
   isAddedToWatchlist = false,
   inProgress = false,
+  notFound = false,
   canExpand = false,
   mutateParent,
 }: TitleCardProps) => {
@@ -462,6 +464,7 @@ const TitleCard = ({
                   <StatusBadgeMini
                     status={currentStatus}
                     inProgress={inProgress}
+                    notFound={notFound}
                     shrink
                   />
                 </div>
