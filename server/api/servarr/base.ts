@@ -1,6 +1,7 @@
 import ExternalAPI from '@server/api/externalapi';
 import type { AvailableCacheIds } from '@server/lib/cache';
 import cacheManager from '@server/lib/cache';
+import type { ServarrRelease } from '@server/lib/notfound';
 import { getSettings, type DVRSettings } from '@server/lib/settings';
 
 export interface SystemStatus {
@@ -226,6 +227,26 @@ class ServarrBase<QueueItemAppendT> extends ExternalAPI {
       throw new Error(`[${this.apiName}] Failed to rename tag: ${e.message}`, {
         cause: e,
       });
+    }
+  };
+
+  // Live release search (indexers are queried, so it can take a while: an
+  // anime season is searched episode by episode, often several minutes).
+  public getReleases = async (
+    params: Record<string, number>
+  ): Promise<ServarrRelease[]> => {
+    try {
+      const response = await this.axios.get<ServarrRelease[]>('/release', {
+        params,
+        timeout: 15 * 60 * 1000,
+      });
+
+      return response.data;
+    } catch (e) {
+      throw new Error(
+        `[${this.apiName}] Failed to retrieve releases: ${e.message}`,
+        { cause: e }
+      );
     }
   };
 

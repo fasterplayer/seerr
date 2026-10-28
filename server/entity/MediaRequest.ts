@@ -707,7 +707,9 @@ export class MediaRequest {
   static async sendNotification(
     entity: MediaRequest,
     media: Media,
-    type: Notification
+    type: Notification,
+    // replaces the TMDB overview as notification message
+    message?: string
   ) {
     const tmdb = new TheMovieDb();
 
@@ -748,6 +750,9 @@ export class MediaRequest {
         case Notification.MEDIA_FAILED:
           event = `${entity.is4k ? '4K ' : ''}${mediaType} Request Failed`;
           break;
+        case Notification.MEDIA_NOT_FOUND:
+          event = `${entity.is4k ? '4K ' : ''}${mediaType} Request Not Found`;
+          break;
       }
 
       if (entity.type === MediaType.MOVIE) {
@@ -762,11 +767,13 @@ export class MediaRequest {
           subject: `${movie.title}${
             movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ''
           }`,
-          message: truncate(movie.overview, {
-            length: 500,
-            separator: /\s/,
-            omission: '…',
-          }),
+          message:
+            message ??
+            truncate(movie.overview, {
+              length: 500,
+              separator: /\s/,
+              omission: '…',
+            }),
           image: `https://image.tmdb.org/t/p/w600_and_h900_bestv2${movie.poster_path}`,
         });
       } else if (entity.type === MediaType.TV) {
@@ -781,11 +788,13 @@ export class MediaRequest {
           subject: `${tv.name}${
             tv.first_air_date ? ` (${tv.first_air_date.slice(0, 4)})` : ''
           }`,
-          message: truncate(tv.overview, {
-            length: 500,
-            separator: /\s/,
-            omission: '…',
-          }),
+          message:
+            message ??
+            truncate(tv.overview, {
+              length: 500,
+              separator: /\s/,
+              omission: '…',
+            }),
           image: `https://image.tmdb.org/t/p/w600_and_h900_bestv2${tv.poster_path}`,
           extra: [
             {
