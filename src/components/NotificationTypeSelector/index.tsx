@@ -34,6 +34,11 @@ const messages = defineMessages('components.NotificationTypeSelector', {
     'Send notifications when media requests fail to be added to Radarr or Sonarr.',
   usermediafailedDescription:
     'Get notified when media requests fail to be added to Radarr or Sonarr.',
+  medianotfound: 'Request Not Found',
+  medianotfoundDescription:
+    'Send notifications when Radarr or Sonarr find nothing for an approved media request.',
+  usermedianotfoundDescription:
+    'Get notified when Radarr or Sonarr find nothing for an approved media request.',
   mediadeclined: 'Request Declined',
   mediadeclinedDescription:
     'Send notifications when media requests are declined.',
@@ -106,6 +111,7 @@ export enum Notification {
   ISSUE_RESOLVED = 1024,
   ISSUE_REOPENED = 2048,
   MEDIA_AUTO_REQUESTED = 4096,
+  MEDIA_NOT_FOUND = 8192,
 }
 
 export const ALL_NOTIFICATIONS = Object.values(Notification)
@@ -283,6 +289,18 @@ const NotificationTypeSelector = ({
             : messages.mediafailedDescription
         ),
         value: Notification.MEDIA_FAILED,
+        hidden: user && !hasPermission(Permission.MANAGE_REQUESTS),
+        hasNotifyUser: false,
+      },
+      {
+        id: 'media-not-found',
+        name: intl.formatMessage(messages.medianotfound),
+        description: intl.formatMessage(
+          user
+            ? messages.usermedianotfoundDescription
+            : messages.medianotfoundDescription
+        ),
+        value: Notification.MEDIA_NOT_FOUND,
         hidden: user && !hasPermission(Permission.MANAGE_REQUESTS),
         hasNotifyUser: false,
       },

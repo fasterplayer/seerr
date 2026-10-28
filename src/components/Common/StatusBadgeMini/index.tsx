@@ -3,6 +3,7 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import {
   BellIcon,
   ClockIcon,
+  ExclamationTriangleIcon,
   EyeSlashIcon,
   MinusSmallIcon,
   TrashIcon,
@@ -13,6 +14,8 @@ interface StatusBadgeMiniProps {
   status: MediaStatus;
   is4k?: boolean;
   inProgress?: boolean;
+  // Radarr/Sonarr found nothing for a PROCESSING item
+  notFound?: boolean;
   // Should the badge shrink on mobile to a smaller size? (TitleCard)
   shrink?: boolean;
 }
@@ -21,6 +24,7 @@ const StatusBadgeMini = ({
   status,
   is4k = false,
   inProgress = false,
+  notFound = false,
   shrink = false,
 }: StatusBadgeMiniProps) => {
   const badgeStyle = [
@@ -33,6 +37,13 @@ const StatusBadgeMini = ({
 
   switch (status) {
     case MediaStatus.PROCESSING:
+      if (notFound) {
+        badgeStyle.push(
+          'bg-red-500/80 border-red-400 ring-red-400 text-red-100'
+        );
+        indicatorIcon = <ExclamationTriangleIcon />;
+        break;
+      }
       badgeStyle.push(
         'bg-indigo-500/80 border-indigo-400 ring-indigo-400 text-indigo-100'
       );
