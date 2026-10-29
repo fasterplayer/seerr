@@ -1,6 +1,7 @@
 import ExternalAPI from '@server/api/externalapi';
 import type { AvailableCacheIds } from '@server/lib/cache';
 import cacheManager from '@server/lib/cache';
+import type { GrabEvent } from '@server/lib/notfound';
 import { getSettings, type DVRSettings } from '@server/lib/settings';
 
 export interface SystemStatus {
@@ -168,6 +169,8 @@ class ServarrBase<QueueItemAppendT> extends ExternalAPI {
         {
           params: {
             includeEpisode: true,
+            // the default page is 10 records: a longer queue looked empty
+            pageSize: 1000,
           },
         }
       );
@@ -226,6 +229,22 @@ class ServarrBase<QueueItemAppendT> extends ExternalAPI {
       throw new Error(`[${this.apiName}] Failed to rename tag: ${e.message}`, {
         cause: e,
       });
+    }
+  };
+
+  // Releases grabbed since a date (read only; one call for all items).
+  public getGrabbedSince = async (date: string): Promise<GrabEvent[]> => {
+    try {
+      const response = await this.axios.get<GrabEvent[]>('/history/since', {
+        params: { date, eventType: 'grabbed' },
+      });
+
+      return response.data;
+    } catch (e) {
+      throw new Error(
+        `[${this.apiName}] Failed to retrieve history: ${e.message}`,
+        { cause: e }
+      );
     }
   };
 

@@ -14,7 +14,7 @@ export interface SonarrSeason {
     percentOfEpisodes: number;
   };
 }
-interface EpisodeResult {
+export interface EpisodeResult {
   seriesId: number;
   episodeFileId: number;
   seasonNumber: number;
@@ -25,6 +25,7 @@ interface EpisodeResult {
   overview: string;
   hasFile: boolean;
   monitored: boolean;
+  lastSearchTime?: string;
   absoluteEpisodeNumber: number;
   unverifiedSceneNumbering: boolean;
   id: number;

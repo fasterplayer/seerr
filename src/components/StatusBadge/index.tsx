@@ -9,6 +9,7 @@ import defineMessages from '@app/utils/defineMessages';
 import { MediaStatus } from '@server/constants/media';
 import { MediaServerType } from '@server/constants/server';
 import type { DownloadingItem } from '@server/lib/downloadtracker';
+import type { NotFoundInfo } from '@server/lib/notfound';
 import { useIntl } from 'react-intl';
 
 const messages = defineMessages('components.StatusBadge', {
@@ -19,11 +20,19 @@ const messages = defineMessages('components.StatusBadge', {
   managemedia: 'Manage {mediaType}',
   seasonnumber: 'S{seasonNumber}',
   seasonepisodenumber: 'S{seasonNumber}E{episodeNumber}',
+  notfound: 'Not found',
+  notfoundsearched: 'Searched on {date} by {arr}, nothing found',
+  notfoundnoresults: 'No results from the indexers',
+  notfoundrejected:
+    '{count, plural, one {# result} other {# results}} rejected: {rejection}',
+  notfoundrejectedunknown:
+    '{count, plural, one {# result} other {# results}} rejected',
 });
 
 interface StatusBadgeProps {
   status?: MediaStatus;
   downloadItem?: DownloadingItem[];
+  notFound?: NotFoundInfo;
   is4k?: boolean;
   inProgress?: boolean;
   plexUrl?: string;
@@ -37,6 +46,7 @@ interface StatusBadgeProps {
 const StatusBadge = ({
   status,
   downloadItem = [],
+  notFound,
   is4k = false,
   inProgress = false,
   plexUrl,
@@ -286,6 +296,39 @@ const StatusBadge = ({
       );
 
     case MediaStatus.PROCESSING:
+      // Radarr/Sonarr searched and found nothing usable: say so instead of
+      // pretending something is being processed.
+      if (notFound && !inProgress) {
+        return (
+          <Tooltip
+            content={
+              notFound.reason === 'searched'
+                ? intl.formatMessage(messages.notfoundsearched, {
+                    date: intl.formatDate(notFound.checkedAt, {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    }),
+                    arr: mediaType === 'tv' ? 'Sonarr' : 'Radarr',
+                  })
+                : notFound.reason === 'noResults'
+                  ? intl.formatMessage(messages.notfoundnoresults)
+                  : intl.formatMessage(
+                      notFound.rejection
+                        ? messages.notfoundrejected
+                        : messages.notfoundrejectedunknown,
+                      { count: notFound.count, rejection: notFound.rejection }
+                    )
+            }
+          >
+            <Badge badgeType="danger" href={mediaLink}>
+              {intl.formatMessage(is4k ? messages.status4k : messages.status, {
+                status: intl.formatMessage(messages.notfound),
+              })}
+            </Badge>
+          </Tooltip>
+        );
+      }
+
       return (
         <Tooltip
           content={inProgress ? tooltipContent : mediaLinkDescription}
